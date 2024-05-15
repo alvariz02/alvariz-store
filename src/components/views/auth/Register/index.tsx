@@ -7,33 +7,67 @@ const RegisterView = () => {
   const [error, setError] = useState("");
   const { push } = useRouter();
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setError("");
-    const form = event.target as HTMLFormElement;
-    const data = {
-      email: form.email.value,
-      fullname: form.fullname.value,
-      phone: form.phone.value,
-      password: form.password.value,
-    };
-    const result = await fetch("/api/user/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    try {
+      event.preventDefault();
+      setIsLoading(true);
+      setError("");
+      const form = event.target as HTMLFormElement;
+      const data = {
+        email: form.email.value,
+        fullname: form.fullname.value,
+        phone: form.phone.value,
+        password: form.password.value,
+      };
+      const result = await fetch("/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-    if (result.status === 200) {
-      form.reset();
+      if (result.ok) {
+        form.reset();
+        setIsLoading(false);
+        push("/auth/login");
+      } else {
+        const errorData = await result.json();
+        throw new Error(errorData.message || "Failed to register user");
+      }
+    } catch (error: any) {
       setIsLoading(false);
-      push("/auth/login");
-    } else {
-      setIsLoading(false);
-      setError("Email is already registered");
+      setError(error.message || "Failed to register user");
     }
   };
+
+  // const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   setIsLoading(true);
+  //   setError("");
+  //   const form = event.target as HTMLFormElement;
+  //   const data = {
+  //     email: form.email.value,
+  //     fullname: form.fullname.value,
+  //     phone: form.phone.value,
+  //     password: form.password.value,
+  //   };
+  //   const result = await fetch("/api/user/register", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(data),
+  //   });
+
+  //   if (result.status === 200) {
+  //     form.reset();
+  //     setIsLoading(false);
+  //     push("/auth/login");
+  //   } else {
+  //     setIsLoading(false);
+  //     setError("Email is already registered");
+  //   }
+  // };
   return (
     <>
       <div className={styles.register}>
