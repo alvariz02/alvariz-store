@@ -66,3 +66,37 @@ export async function signIn(email: string) {
     return null;
   }
 }
+export async function loginWithGoogle(data: any, callback: Function) {
+  try {
+    const q = query(collection(firestore, "users"), where("email", "==", data.email));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const doc = snapshot.docs[0];
+      callback({ id: doc.id, ...doc.data() });
+    } else {
+      data.role = "member";
+      const newUserRef = await addDoc(collection(firestore, "users"), data);
+      callback({ id: newUserRef.id, ...data });
+    }
+  } catch (error) {
+    console.error("Error in loginWithGoogle:", error);
+    // Handle error here, maybe notify the user or log it
+  }
+}
+
+// export async function loginWithGoogle(data: any, callback: Function) {
+//   const q = query(collection(firestore, "users"), where("email", "==", data.email));
+//   const snapshot = await getDocs(q);
+//   const user = snapshot.docs.map((doc) => ({
+//     id: doc.id,
+//     ...doc.data(),
+//   }));
+//   if (user.length > 0) {
+//     callback(user[0]);
+//   } else {
+//     data.role = "member";
+//     await addDoc(collection(firestore, "user"), data).then(() => {
+//       callback(data);
+//     });
+//   }
+// }
