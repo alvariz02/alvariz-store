@@ -4,6 +4,8 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/router";
 import { signIn } from "next-auth/react";
 import { redirect } from "next/dist/server/api-utils";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 const LoginView = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -46,24 +48,19 @@ const LoginView = () => {
         {error && <p className={styles.login__error}>{error}</p>}
         <div className={styles.login__form}>
           <form onSubmit={handleSubmit}>
-            <div className={styles.login__form__item}>
-              <label htmlFor="email">Email</label>
-              <input name="email" id="email" type="email" className={styles.login__form__item__input} />
-            </div>
-            <div className={styles.login__form__item}>
-              <label htmlFor="password">Password</label>
-              <input name="password" id="password" type="password" className={styles.login__form__item__input} />
-            </div>
-            <button type="submit" className={styles.login__form__button}>
+            <Input label="Email" name="email" type="email"></Input>
+            <Input label="Password" name="password" type="password"></Input>
+            <Button type="submit" variant="primary" className={styles.login__form__button}>
               {isLoading ? "Loading.." : "Login"}
-            </button>
+            </Button>
           </form>
           <hr className={styles.login__form__devider} />
           <div className={styles.login__form__other}>
-            <button type="button" onClick={() => signIn("google", { callbackUrl, redirect: false })} className={styles.login__form__other__button}>
+            <Button type="submit" className={styles.login__form__other__button} onClick={() => signIn("google", { callbackUrl, redirect: false })}>
+              {" "}
               <i className="bx bxl-google" />
               Login With Google
-            </button>
+            </Button>
           </div>
         </div>
 
