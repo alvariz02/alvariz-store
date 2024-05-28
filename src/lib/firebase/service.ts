@@ -1,4 +1,4 @@
-import { DocumentData, Query, addDoc, collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
+import { DocumentData, Query, addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, updateDoc, where } from "firebase/firestore";
 import app from "./init";
 import bcrypt from "bcrypt";
 
@@ -27,6 +27,28 @@ export async function retrieveDataById(collectionName: string, id: string) {
 export async function retrieveDataByField(collectionName: string, field: string, value: string) {
   const q = query(collection(firestore, collectionName), where(field, "==", value));
   return await fetchData(q);
+}
+
+export async function upadateData(collectionName: string, id: string, data: any, callback: Function) {
+  const docRef = doc(firestore, collectionName, id);
+  await updateDoc(docRef, data)
+    .then(() => {
+      callback(true);
+    })
+    .catch(() => {
+      callback(false);
+    });
+}
+
+export async function deleteData(collectionName: string, id: string, callback: Function) {
+  const docRef = doc(firestore, collectionName, id);
+  await deleteDoc(docRef)
+    .then(() => {
+      callback(true);
+    })
+    .catch(() => {
+      callback(false);
+    });
 }
 
 export async function checkIfUserExists(email: string) {
@@ -65,13 +87,16 @@ export async function signIn(email: string) {
   return data.length > 0 ? data[0] : null;
 }
 
-export async function loginWithGoogle(data: { fullname?: string; email: string; type?: string; role?: string }, callback: Function) {
+export async function loginWithGoogle(data: { fullname?: string; email: string; type?: string; role?: string; created_at?: Date; update_at?: Date; password?: string }, callback: Function) {
   try {
     const existingUser = await retrieveDataByField("users", "email", data.email);
     if (existingUser.length > 0) {
       return callback(existingUser[0]);
     } else {
       data.role = data.role || "member";
+      data.created_at = new Date();
+      data.update_at = new Date();
+      data.password = "";
       const newUserRef = await addDoc(collection(firestore, "users"), data);
       callback({ id: newUserRef.id, ...data });
     }
@@ -87,14 +112,6 @@ export async function loginWithGoogle(data: { fullname?: string; email: string; 
 
 // const firestore = getFirestore(app);
 
-// export async function retrieveData(collectionName: string) {
-//   const snapshot = await getDocs(collection(firestore, collectionName));
-//   const data = snapshot.docs.map((doc) => ({
-//     id: doc.id,
-//     ...doc.data(),
-//   }));
-//   return data;
-// }
 // export async function retrieveDataById(collectionName: string, id: string) {
 //   const snapshot = await getDoc(doc(firestore, collectionName, id));
 //   const data = snapshot.data();
