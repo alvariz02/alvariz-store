@@ -25,10 +25,6 @@ const AdminUserPage = () => {
     getAllUsers();
   }, [getAllUsers]);
 
-  if (loading) {
-    return <div>Memuat...</div>;
-  }
-
   if (error) {
     return <div>Error: {error}</div>;
   }
