@@ -5,9 +5,10 @@ type proptypes = {
   children: React.ReactNode;
   variant?: string;
   className?: string;
+  disabled?: string;
 };
 const Button = (props: proptypes) => {
-  const { type, onClick, children, variant = "primary", className } = props;
+  const { type, onClick, children, variant = "primary", className, disabled } = props;
   return (
     <button type={type} onClick={onClick} className={`${styles.button} ${styles[variant]} ${className}`}>
       {/* <i className="bx bxl-google" />

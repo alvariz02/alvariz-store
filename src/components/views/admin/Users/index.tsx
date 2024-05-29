@@ -1,10 +1,8 @@
 import Button from "@/components/ui/Button";
 import styles from "./User.module.scss";
-import Modal from "@/components/ui/Modal";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useEffect, useState } from "react";
 import ModalUpdateUser from "./ModalUpdateUser";
-import userServices from "@/services/user";
 import ModalDeleteUser from "./ModalDeleteuser";
 type Propstypes = {
   users: any;

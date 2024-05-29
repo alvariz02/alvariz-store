@@ -8,6 +8,7 @@ import { FormEvent, useState } from "react";
 const ModalUpdateUser = (props: any) => {
   const { updatedUser, setUpdatedUser, setUsersData } = props;
   const [isLoading, setIsLoading] = useState(false);
+
   const handleUpdateUser = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
@@ -18,47 +19,47 @@ const ModalUpdateUser = (props: any) => {
         role: form.role.value,
       };
 
-      const result = await userServices.updateUser(updatedUser.id, data); // Pastikan ini adalah panggilan axios
+      const result = await userServices.updateUser(updatedUser.id, data);
 
       if (result.status === 200) {
         form.reset();
-        setIsLoading(false);
         setUpdatedUser({});
-        const { data } = await userServices.getAllUser();
-        setUsersData(data.data);
+        const { data: usersData } = await userServices.getAllUser();
+        setUsersData(usersData.data);
       } else {
         const errorData = result.data;
-        throw new Error(errorData.message || "Failed to register user");
+        throw new Error(errorData.message || "Failed to update user");
       }
     } catch (error: any) {
-      setIsLoading(false);
       if (error.response && error.response.data && error.response.data.message) {
-        // setError(error.response.data.message);
+        // Show specific error message to the user
+        console.error(error.response.data.message);
       } else {
-        // setError(error.message || "Failed to register user");
+        // Show a generic error message
+        console.error(error.message || "Failed to update user");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
     <Modal onClose={() => setUpdatedUser({})}>
       <h1>Edit User</h1>
       <form onSubmit={handleUpdateUser}>
-        <Input label="Fullname" name="fullname" type="text" defaultValue={updatedUser.fullname} disabeld></Input>
-        <Input label="Email" name="email" type="email" defaultValue={updatedUser.email} disabeld></Input>
-        <Input label="Phone" name="phone" type="text" defaultValue={updatedUser.phone} disabeld></Input>
+        <Input label="Fullname" name="fullname" type="text" defaultValue={updatedUser.fullname} disabled />
+        <Input label="Email" name="email" type="email" defaultValue={updatedUser.email} disabled />
+        <Input label="Phone" name="phone" type="text" defaultValue={updatedUser.phone} disabled />
         <Select
           label="Role"
           name="role"
           defaultValue={updatedUser.role}
           options={[
-            {
-              label: "Member",
-              value: "member",
-            },
+            { label: "Member", value: "member" },
             { label: "Admin", value: "admin" },
           ]}
         />
-        <Button type="submit">Edit</Button>
+        <Button type="submit">{isLoading ? "Updating..." : "Edit"}</Button>
       </form>
     </Modal>
   );

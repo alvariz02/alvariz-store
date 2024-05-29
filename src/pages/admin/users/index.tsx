@@ -1,4 +1,3 @@
-import AdminLayout from "@/components/layouts/AdminLayout";
 import UserAdminView from "@/components/views/admin/Users";
 import userServices from "@/services/user";
 import { useCallback, useEffect, useState } from "react";
@@ -9,13 +8,14 @@ const AdminUserPage = () => {
   const [error, setError] = useState(null);
 
   const getAllUsers = useCallback(async () => {
-    setLoading(true); // Set loading ke true saat memulai pemanggilan API
+    setLoading(true); // Mengatur loading ke true saat mulai memanggil API
     setError(null); // Reset error sebelum memulai pemanggilan API
+
     try {
       const { data } = await userServices.getAllUser();
       setUsers(data.data);
     } catch (err: any) {
-      setError(err);
+      setError(err.message || "Terjadi kesalahan saat mengambil data pengguna.");
     } finally {
       setLoading(false); // Pastikan loading diatur ke false di blok finally
     }
@@ -26,15 +26,16 @@ const AdminUserPage = () => {
   }, [getAllUsers]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Memuat...</div>;
   }
 
   if (error) {
-    return <div>Error: {error || "An error occurred"}</div>; // Pastikan properti message tersedia
+    return <div>Error: {error}</div>;
   }
+
   return (
     <>
-      <UserAdminView users={users}></UserAdminView>
+      <UserAdminView users={users} />
     </>
   );
 };
