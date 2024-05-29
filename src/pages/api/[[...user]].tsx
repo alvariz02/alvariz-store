@@ -28,6 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } else if (req.method === "DELETE") {
     const { user }: any = req.query;
+    console.log(user);
     await deleteData("users", user[1], (result: boolean) => {
       if (result) {
         res.status(200).json({
