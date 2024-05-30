@@ -1,17 +1,18 @@
-import { deleteData, retrieveData, upadateData } from "@/lib/firebase/service";
-import type { NextApiRequest, NextApiHandler, NextApiResponse } from "next";
+import { deleteData, retrieveData, updateData } from "@/lib/firebase/service";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "GET") {
-    const users = await retrieveData("users");
-    const data = users.map((user: any) => {
-      delete user.password;
-      return user;
-    });
-    res.status(200).json({ status: true, statusCode: 200, message: "success", data });
-  } else if (req.method === "PUT") {
-    const { id, data } = req.body;
-    await upadateData("users", id, data, (result: boolean) => {
+  try {
+    if (req.method === "GET") {
+      const users = await retrieveData("users");
+      const data = users.map((user: any) => {
+        delete user.password;
+        return user;
+      });
+      res.status(200).json({ status: true, statusCode: 200, message: "success", data });
+    } else if (req.method === "PUT") {
+      const { id, data } = req.body;
+      const result = await updateData("users", id, data);
       if (result) {
         res.status(200).json({
           status: true,
@@ -25,11 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           message: "failed",
         });
       }
-    });
-  } else if (req.method === "DELETE") {
-    const { user }: any = req.query;
-    console.log(user);
-    await deleteData("users", user[1], (result: boolean) => {
+    } else if (req.method === "DELETE") {
+      const { user }: any = req.query;
+      const result = await deleteData("users", user);
       if (result) {
         res.status(200).json({
           status: true,
@@ -43,6 +42,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           message: "failed",
         });
       }
+    } else {
+      res.setHeader("Allow", ["GET", "PUT", "DELETE"]);
+      res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+  } catch (error: any) {
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      message: "Internal Server Error",
+      error: error.message,
     });
   }
 }

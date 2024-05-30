@@ -29,28 +29,27 @@ export async function retrieveDataByField(collectionName: string, field: string,
   return await fetchData(q);
 }
 
-export async function upadateData(collectionName: string, id: string, data: any, callback: Function) {
-  const docRef = doc(firestore, collectionName, id);
-  await updateDoc(docRef, data)
-    .then(() => {
-      callback(true);
-    })
-    .catch(() => {
-      callback(false);
-    });
+export async function updateData(collectionName: string, id: string, data: any): Promise<boolean> {
+  try {
+    const docRef = doc(firestore, collectionName, id);
+    await updateDoc(docRef, data);
+    return true;
+  } catch (error) {
+    console.error("Error updating document:", error);
+    return false;
+  }
 }
 
-export async function deleteData(collectionName: string, id: string, callback: Function) {
-  const docRef = doc(firestore, collectionName, id);
-  await deleteDoc(docRef)
-    .then(() => {
-      callback(true);
-    })
-    .catch(() => {
-      callback(false);
-    });
+export async function deleteData(collectionName: string, id: string): Promise<boolean> {
+  try {
+    const docRef = doc(firestore, collectionName, id);
+    await deleteDoc(docRef);
+    return true;
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    return false;
+  }
 }
-
 export async function checkIfUserExists(email: string) {
   const data = await retrieveDataByField("users", "email", email);
   return data.length > 0;

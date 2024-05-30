@@ -39,9 +39,7 @@
 // );
 
 // export default instance;
-
 import axios from "axios";
-import { error } from "console";
 
 const headers = {
   Accept: "application/json",
@@ -55,11 +53,12 @@ const instance = axios.create({
 });
 
 instance.interceptors.response.use(
-  (config) => config,
+  (response) => response,
   (error) => Promise.reject(error)
 );
+
 instance.interceptors.request.use(
-  (response) => response,
+  (config) => config,
   (error) => Promise.reject(error)
 );
 
