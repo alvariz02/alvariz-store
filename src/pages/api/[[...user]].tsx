@@ -1,6 +1,7 @@
 import { deleteData, retrieveData, updateData } from "@/lib/firebase/service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import cors, { runMiddleware } from "@/pages/api/cors"; // Import middleware
+import jwt from "jsonwebtoken";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await runMiddleware(req, res, cors); // Jalankan middleware CORS
@@ -14,37 +15,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
       res.status(200).json({ status: true, statusCode: 200, message: "success", data });
     } else if (req.method === "PUT") {
-      const { id, data } = req.body;
-      const result = await updateData("users", id, data);
-      if (result) {
-        res.status(200).json({
-          status: true,
-          statusCode: 200,
-          message: "success",
-        });
-      } else {
-        res.status(400).json({
-          status: false,
-          statusCode: 400,
-          message: "failed",
-        });
-      }
+      const { user }: any = req.query;
+      const { data } = req.body;
+      const token = req.headers.authorization?.split(" ")[1] || "";
+      jwt.verify(token, process.env.NEXTAUTH_SECRET || "", async (err: any, decoded: any) => {
+        if (decoded && decoded.role === "member") {
+          const result = await updateData("users", user[1], data);
+          if (result) {
+            res.status(200).json({
+              status: true,
+              statusCode: 200,
+              message: "success",
+            });
+          } else {
+            res.status(400).json({
+              status: false,
+              statusCode: 400,
+              message: "failed",
+            });
+          }
+        } else {
+          res.status(403).json({
+            status: false,
+            statusCode: 403,
+            message: "access denied",
+          });
+        }
+      });
     } else if (req.method === "DELETE") {
       const { user }: any = req.query;
-      const result = await deleteData("users", user[1]);
-      if (result) {
-        res.status(200).json({
-          status: true,
-          statusCode: 200,
-          message: "success",
-        });
-      } else {
-        res.status(400).json({
-          status: false,
-          statusCode: 400,
-          message: "failed",
-        });
-      }
+      const token = req.headers.authorization?.split(" ")[1] || "";
+      jwt.verify(token, process.env.NEXTAUTH_SECRET || "", async (err: any, decoded: any) => {
+        if (decoded && decoded.role === "admin") {
+          const result = await deleteData("users", user[1]);
+          if (result) {
+            res.status(200).json({
+              status: true,
+              statusCode: 200,
+              message: "success",
+            });
+          } else {
+            res.status(400).json({
+              status: false,
+              statusCode: 400,
+              message: "failed",
+            });
+          }
+        } else {
+          res.status(403).json({
+            status: false,
+            statusCode: 403,
+            message: "access denied",
+          });
+        }
+      });
     } else {
       res.setHeader("Allow", ["GET", "PUT", "DELETE"]);
       res.status(405).end(`Method ${req.method} Not Allowed`);

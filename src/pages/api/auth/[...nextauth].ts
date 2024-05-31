@@ -4,6 +4,7 @@ import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import jwt from "jsonwebtoken";
 const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -74,6 +75,10 @@ const authOptions: NextAuthOptions = {
       if ("role" in token) {
         session.user.role = token.role;
       }
+      const accessToken = jwt.sign(token, process.env.NEXTAUTH_SECRET || "", {
+        algorithm: "HS256",
+      });
+      session.accessToken = accessToken;
       return session;
     },
   },
