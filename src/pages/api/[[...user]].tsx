@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { data } = req.body;
       const token = req.headers.authorization?.split(" ")[1] || "";
       jwt.verify(token, process.env.NEXTAUTH_SECRET || "", async (err: any, decoded: any) => {
-        if (decoded && decoded.role === "member") {
+        if (decoded && decoded.role === "admin") {
           const result = await updateData("users", user[1], data);
           if (result) {
             res.status(200).json({
