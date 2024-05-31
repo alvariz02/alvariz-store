@@ -1,7 +1,10 @@
 import { deleteData, retrieveData, updateData } from "@/lib/firebase/service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import cors, { runMiddleware } from "@/pages/api/cors"; // Import middleware
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  await runMiddleware(req, res, cors); // Jalankan middleware CORS
+
   try {
     if (req.method === "GET") {
       const users = await retrieveData("users");
@@ -28,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     } else if (req.method === "DELETE") {
       const { user }: any = req.query;
-      const result = await deleteData("users", user);
+      const result = await deleteData("users", user[1]);
       if (result) {
         res.status(200).json({
           status: true,
